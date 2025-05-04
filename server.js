@@ -23,26 +23,28 @@ app.post('/userInput', (req, res) => {
 
 // POST endpoint to update modelOutput
 app.post('/updateModelOutput', (req, res) => {
-    const { analysis, version } = req.body;
+    const { analysis, app_version, model_version } = req.body;
 
     // Update the modelOutput object
     modelOutput.analysis = analysis || modelOutput.analysis;
-    modelOutput.version = version || modelOutput.version;
+    modelOutput.app_version = app_version || modelOutput.app_version;
+    modelOutput.model_version = model_version || modelOutput.model_version;
 
     console.log('Updated modelOutput:', modelOutput);
 
     res.status(200).json({
         status: 'success',
         message: 'Model output updated successfully',
-        updatedModelOutput: modelOutput
+        updatedModelOutput: modelOutput.analysis
     });
 });
 
 
 // GET endpoint to display on the front end
 let modelOutput = {
-    analysis: "default",
-    version: "1.0.0"
+    analysis: "neutral",
+    app_version: "1.2.3",
+    model_version: "1.0.0",
 };
 app.get('/modelOutput', (req, res) => {
     try {
@@ -53,6 +55,24 @@ app.get('/modelOutput', (req, res) => {
     }
 });
 
+
+//POST endpoint to receive user feedback
+app.post("/judgment", (req, res) => {
+    console.log('Received judgment:', req.body);
+
+    if (typeof req.body.isCorrect === 'boolean') {
+        res.status(200).json({
+            status: 'success',
+            message: 'Judgment received',
+            receivedJudgment: req.body.isCorrect
+        });
+    } else {
+        res.status(400).json({
+        status: 'error',
+        message: 'Invalid judgment format. Expected a boolean value in the "isCorrect" property.'
+        });
+    }
+});
 
 // Start server
 const PORT = 3000;
