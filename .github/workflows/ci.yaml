@@ -44,6 +44,10 @@ jobs:
                   echo "npm dependencies are already installed"
                 fi
 
+            - name: Install dotenv package
+              run: |
+                npm install dotenv
+
             - name: Run the application
               run: |
                 export $(cat .env | xargs) # Load environment variables from .env
