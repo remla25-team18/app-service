@@ -27,15 +27,6 @@ jobs:
               with:
                 node-version: '16'
 
-            - name: Install npm
-              run: |
-                if ! command -v npm &> /dev/null; then
-                  sudo apt-get update
-                  sudo apt-get install -y npm
-                else
-                  echo "npm is already installed"
-                fi
-
             - name: Install npm dependencies
               run: |
                 if [ ! -d "node_modules" ]; then
