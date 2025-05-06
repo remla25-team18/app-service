@@ -3,17 +3,17 @@ name: Release
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 0
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -23,18 +23,29 @@ jobs:
           password: ${{ secrets.GH_TOKEN }}
 
       - name: Extract version from tag
-        id: vars
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        id: get_tag
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Build and tag Docker image
+      - name: Build, tag and push Docker image
         run: |
           IMG="ghcr.io/${{ github.repository }}"
           IMG=${IMG@L}
-          docker build -t $IMG:latest -t $IMG:${VERSION} .
-      
-      - name: Push Docker images
+          docker build --tag $IMG:${{steps.get_tag.outputs.VERSION}} .
+          docker push --all-tags $IMG   
+
+      - name: Update tag
+        id: updated_tag
         run: |
-          IMG="ghcr.io/${{ github.repository }}"
-          IMG=${IMG@L}
-          docker push $IMG:latest
-          docker push $IMG:${VERSION}
+          git fetch --all
+          git checkout main
+          
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${{steps.get_tag.outputs.VERSION}}"
+          NEW_PATCH=$((PATCH + 1))
+          echo "v$MAJOR.$MINOR.${NEW_PATCH}-pre" > VERSION
+          
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          
+          git add VERSION
+          git commit -m "Bump version"
+          git push origin HEAD:main
