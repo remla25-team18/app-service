@@ -1,0 +1,113 @@
+openapi: 3.0.0
+info:
+  title: App Service API
+  version: 1.0.0
+  description: API documentation for the app-service, which acts as a bridge between the frontend and model-service.
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+paths:
+  /userInput:
+    post:
+      summary: Receive user input and forward it to the model-service for prediction.
+      requestBody:
+        description: JSON object containing the user input text.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: The user input text to be analyzed.
+                  example: "This is a sample input."
+      responses:
+        '200':
+          description: Prediction result from the model-service.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prediction:
+                    type: string
+                    description: The predicted label from the model-service.
+                    example: "positive"
+        '500':
+          description: Internal server error.
+
+  /judgment:
+    post:
+      summary: Submit user feedback on the model's prediction.
+      requestBody:
+        description: JSON object containing the user's feedback.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isCorrect:
+                  type: boolean
+                  description: Indicates whether the user agrees with the model's prediction.
+                  example: true
+      responses:
+        '200':
+          description: Feedback successfully received.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Status of the operation.
+                    example: "success"
+                  message:
+                    type: string
+                    description: Confirmation message.
+                    example: "Judgment received"
+        '400':
+          description: Invalid feedback format.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Status of the operation.
+                    example: "error"
+                  message:
+                    type: string
+                    description: Error message.
+                    example: "Invalid judgment format. Expected a boolean value in the 'isCorrect' property."
+
+  /modelOutput:
+    get:
+      summary: Retrieve the current model output.
+      responses:
+        '200':
+          description: Current model output.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  analysis:
+                    type: string
+                    description: The sentiment analysis result.
+                    example: "neutral"
+                  app_version:
+                    type: string
+                    description: The version of the app.
+                    example: "1.2.3"
+                  model_version:
+                    type: string
+                    description: The version of the model.
+                    example: "1.0.0"
+        '500':
+          description: Internal server error.
