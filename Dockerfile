@@ -13,8 +13,8 @@ COPY . /app
 
 # Expose the port the app runs on
 ARG PORT=3000
-# ENV PORT=${PORT}
-EXPOSE PORT
+ENV PORT=${PORT}
+EXPOSE ${PORT}
 
 # Define the command to run the application
 CMD ["node", "server.js"]
