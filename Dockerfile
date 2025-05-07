@@ -10,6 +10,11 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
+RUN apt-get update && \
+    apt-get install -y git gcc build-essential
+
+RUN pip install --upgrade pip setuptools wheel
+
 # Copy the rest of the application code to the working directory
 COPY . .
 
