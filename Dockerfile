@@ -13,6 +13,9 @@ RUN npm install
 # Copy the rest of the application code to the working directory
 COPY . .
 
+# Install requirements
+RUN pip install -r requirements.txt
+
 # Expose the port the app runs on
 ARG PORT=3000
 ENV PORT=${PORT}
