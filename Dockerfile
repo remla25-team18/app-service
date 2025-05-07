@@ -10,8 +10,16 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
+RUN apt-get update && \
+    apt-get install -y git gcc build-essential python3 python3-pip
+
+RUN pip3 install --upgrade pip setuptools wheel
+
 # Copy the rest of the application code to the working directory
 COPY . .
+
+# Install requirements
+RUN pip3 install -r requirements.txt
 
 # Expose the port the app runs on
 ARG PORT=3000
